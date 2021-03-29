@@ -1,14 +1,17 @@
 package sukstar76.IssueTracker.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import sukstar76.IssueTracker.domain.Issue;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
 
+@Repository
 public class JpaIssueRepository implements IssueRepository {
     private final EntityManager em;
 
+    @Autowired
     public JpaIssueRepository(EntityManager em) {
         this.em = em;
     }
@@ -21,10 +24,10 @@ public class JpaIssueRepository implements IssueRepository {
     }
 
     @Override
-    public Optional<Issue> findById(Long id) {
+    public Issue findById(Long id) {
         Issue issue = em.find(Issue.class, id);
 
-        return Optional.ofNullable(issue);
+        return issue;
     }
 
     @Override

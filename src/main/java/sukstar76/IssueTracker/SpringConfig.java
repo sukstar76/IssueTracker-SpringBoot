@@ -1,4 +1,4 @@
-package sukstar76.IssueTracker;
+/*package sukstar76.IssueTracker;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,4 +27,4 @@ public class SpringConfig {
     public IssueRepository issueRepository() {
         return new JpaIssueRepository(em);
     }
-}
+}*/
