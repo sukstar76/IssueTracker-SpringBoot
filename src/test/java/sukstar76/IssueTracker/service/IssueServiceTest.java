@@ -1,18 +1,25 @@
 package sukstar76.IssueTracker.service;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import sukstar76.IssueTracker.domain.Issue;
+import sukstar76.IssueTracker.dto.IssueDto;
 import sukstar76.IssueTracker.repository.IssueRepository;
 
 import javax.transaction.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 class IssueServiceTest {
 
@@ -21,41 +28,48 @@ class IssueServiceTest {
 
     @Test
     void create() {
-        Issue issue = new Issue();
-        issue.setTitle("hello");
-        issue.setStatus(true);
+        IssueDto.Request req = IssueDto.Request.builder()
+                .title("hello")
+                .status(true)
+                .build();
 
-        Issue savedIssue = issueService.create(issue);
+        IssueDto.Response res = issueService.create(req);
 
-        assertEquals(issue.getTitle(), savedIssue.getTitle());
+        Assertions.assertThat(req.getTitle()).isEqualTo(res.getIssue().getTitle());
     }
 
     @Test
     void findOne() {
-        Issue issue = new Issue();
-        issue.setTitle("hello2");
-        issue.setStatus(true);
+        IssueDto.Request req = IssueDto.Request.builder()
+                .title("hello")
+                .status(true)
+                .build();
 
-        Issue savedIssue = issueService.create(issue);
+        IssueDto.Response res = issueService.create(req);
 
-        Issue findedIssue = issueRepository.findById(savedIssue.getId()).get();
-        assertEquals(issue.getTitle(), findedIssue.getTitle());
+        IssueDto.Response finded = issueService.findOne(res.getIssue().getId());
+
+        Assertions.assertThat(req.getTitle()).isEqualTo(finded.getIssue().getTitle());
     }
 
     @Test
     void findIssues() {
-        Issue issue1 = new Issue();
-        issue1.setTitle("hello2");
-        issue1.setStatus(true);
+        IssueDto.Request req1 = IssueDto.Request.builder()
+                .title("hello")
+                .status(true)
+                .build();
 
-        Issue issue2 = new Issue();
-        issue2.setTitle("hello2");
-        issue2.setStatus(true);
+        IssueDto.Request req2 = IssueDto.Request.builder()
+                .title("hello2")
+                .status(true)
+                .build();
 
-        issueService.create(issue1);
-        issueService.create(issue2);
+        issueService.create(req1);
+        issueService.create(req2);
 
-        List<Issue> issues = issueRepository.findAll();
-        assertEquals(issues.size(), 2);
+        IssueDto.IssuesResponse li = issueService.findIssues();
+
+        Assertions.assertThat(li.getIssues().size()).isEqualTo(2);
+
     }
 }
