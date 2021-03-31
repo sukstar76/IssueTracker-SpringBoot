@@ -3,6 +3,8 @@ package sukstar76.IssueTracker.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,4 +19,7 @@ public class Issue {
     private String title;
     @Column(nullable=false)
     private Boolean status;
+
+    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 }

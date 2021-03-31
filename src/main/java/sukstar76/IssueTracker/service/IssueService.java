@@ -40,11 +40,11 @@ public class IssueService {
     }
 
     public IssueDto.Response findOne(Long issueId) {
-        Issue findedIssue = issueRepository.findById(issueId);
+        Issue foundIssue = issueRepository.findById(issueId);
         IssueDto.Issue issue = IssueDto.Issue.builder()
-                .id(findedIssue.getId())
-                .title(findedIssue.getTitle())
-                .status(findedIssue.getStatus())
+                .id(foundIssue.getId())
+                .title(foundIssue.getTitle())
+                .status(foundIssue.getStatus())
                 .build();
 
         IssueDto.Response result = new IssueDto.Response(issue,200,"success");
@@ -53,9 +53,9 @@ public class IssueService {
     }
 
     public IssueDto.IssuesResponse findIssues() {
-        List<Issue> findedIssues = issueRepository.findAll();
+        List<Issue> foundIssues = issueRepository.findAll();
 
-        List<IssueDto.Issue> issueList = findedIssues.stream()
+        List<IssueDto.Issue> issueList = foundIssues.stream()
                 .map(i -> IssueDto.Issue.builder()
                         .id(i.getId())
                         .title(i.getTitle())

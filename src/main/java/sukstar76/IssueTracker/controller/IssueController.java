@@ -1,6 +1,5 @@
 package sukstar76.IssueTracker.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sukstar76.IssueTracker.dto.IssueDto;
@@ -9,10 +8,9 @@ import sukstar76.IssueTracker.service.IssueService;
 @RestController
 @RequestMapping(value = "/api/issue")
 public class IssueController {
-
-    @Autowired
     private final IssueService issueService;
 
+    @Autowired
     public IssueController(IssueService issueService) {
         this.issueService = issueService;
     }

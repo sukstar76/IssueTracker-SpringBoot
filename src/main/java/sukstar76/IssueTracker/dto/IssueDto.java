@@ -14,7 +14,6 @@ public class IssueDto {
     }
 
     @AllArgsConstructor
-    @NoArgsConstructor
     @Getter
     @Builder
     public static class Request {
