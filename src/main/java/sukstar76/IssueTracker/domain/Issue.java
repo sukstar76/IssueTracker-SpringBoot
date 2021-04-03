@@ -19,7 +19,6 @@ public class Issue {
     private String title;
     @Column(nullable=false)
     private Boolean status;
-
     @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 }

@@ -16,6 +16,16 @@ public class IssueDto {
     @AllArgsConstructor
     @Getter
     @Builder
+    public static class IssueDetail {
+        private Long id;
+        private String title;
+        private boolean status;
+        private List<CommentDto.Comment> comments;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Builder
     public static class Request {
         private String title;
         private boolean status;
@@ -23,8 +33,8 @@ public class IssueDto {
 
     @AllArgsConstructor
     @Getter
-    public static class Response {
-        private Issue issue;
+    public static class IssueDetailResponse {
+        private IssueDetail issueDetail;
         private int returnCode;
         private String returnMessage;
     }

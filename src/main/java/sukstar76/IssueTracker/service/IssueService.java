@@ -2,7 +2,9 @@ package sukstar76.IssueTracker.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sukstar76.IssueTracker.domain.Comment;
 import sukstar76.IssueTracker.domain.Issue;
+import sukstar76.IssueTracker.dto.CommentDto;
 import sukstar76.IssueTracker.dto.IssueDto;
 import sukstar76.IssueTracker.repository.IssueRepository;
 
@@ -20,7 +22,7 @@ public class IssueService {
     public IssueService(IssueRepository issueRepository) {
         this.issueRepository = issueRepository;
     }
-    public IssueDto.Response create(IssueDto.Request issueRequest) {
+    public IssueDto.IssueDetailResponse create(IssueDto.Request issueRequest) {
         Issue newIssue = Issue.builder()
                 .title(issueRequest.getTitle())
                 .status(true)
@@ -28,26 +30,36 @@ public class IssueService {
 
         Issue createdIssue = issueRepository.save(newIssue);
 
-        IssueDto.Issue issue = IssueDto.Issue.builder()
+        IssueDto.IssueDetail issue = IssueDto.IssueDetail.builder()
                 .id(createdIssue.getId())
                 .title(createdIssue.getTitle())
                 .status(createdIssue.getStatus())
                 .build();
 
-        IssueDto.Response result = new IssueDto.Response(issue,201,"success");
+        IssueDto.IssueDetailResponse result = new IssueDto.IssueDetailResponse(issue,201,"success");
 
         return result;
     }
 
-    public IssueDto.Response findOne(Long issueId) {
+    public IssueDto.IssueDetailResponse findOne(Long issueId) {
         Issue foundIssue = issueRepository.findById(issueId);
-        IssueDto.Issue issue = IssueDto.Issue.builder()
+        List<Comment> comments = foundIssue.getComments();
+        List<CommentDto.Comment> commentsDto = comments
+                .stream()
+                .map(c -> CommentDto.Comment.builder()
+                        .id(c.getId())
+                        .content(c.getContent())
+                        .build())
+                .collect(Collectors.toList());
+
+        IssueDto.IssueDetail issue = IssueDto.IssueDetail.builder()
                 .id(foundIssue.getId())
                 .title(foundIssue.getTitle())
                 .status(foundIssue.getStatus())
+                .comments(commentsDto)
                 .build();
 
-        IssueDto.Response result = new IssueDto.Response(issue,200,"success");
+        IssueDto.IssueDetailResponse result = new IssueDto.IssueDetailResponse(issue,200,"success");
 
         return result;
     }

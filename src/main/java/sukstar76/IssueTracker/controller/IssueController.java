@@ -16,12 +16,12 @@ public class IssueController {
     }
 
     @PostMapping
-    public IssueDto.Response createIssue(@RequestBody IssueDto.Request req) {
+    public IssueDto.IssueDetailResponse createIssue(@RequestBody IssueDto.Request req) {
 
         return issueService.create(req);
     }
     @GetMapping("/{issueId}")
-    public IssueDto.Response getIssue(@PathVariable("issueId") Long issueId) {
+    public IssueDto.IssueDetailResponse getIssue(@PathVariable("issueId") Long issueId) {
 
         return issueService.findOne(issueId);
     }
