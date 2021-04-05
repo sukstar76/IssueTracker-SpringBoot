@@ -2,11 +2,13 @@ package sukstar76.IssueTracker.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import sukstar76.IssueTracker.dto.CommonDto;
 import sukstar76.IssueTracker.dto.IssueDto;
 import sukstar76.IssueTracker.service.IssueService;
 
+import java.util.List;
+
 @RestController
-@RequestMapping(value = "/api/issue")
 public class IssueController {
     private final IssueService issueService;
 
@@ -15,20 +17,24 @@ public class IssueController {
         this.issueService = issueService;
     }
 
-    @PostMapping
-    public IssueDto.IssueDetailResponse createIssue(@RequestBody IssueDto.Request req) {
+    @PostMapping("/api/remotes/{remoteId}/issues")
+    public CommonDto.Response createIssue(@PathVariable("remoteId") Long remoteId, @RequestBody IssueDto.IssueCreationRequest req) {
+        IssueDto.IssueDetail issueDetail = issueService.create(remoteId, req);
 
-        return issueService.create(req);
-    }
-    @GetMapping("/{issueId}")
-    public IssueDto.IssueDetailResponse getIssue(@PathVariable("issueId") Long issueId) {
-
-        return issueService.findOne(issueId);
+        return new CommonDto.Response(issueDetail, 201, "success");
     }
 
-    @GetMapping("/list")
-    public IssueDto.IssuesResponse getIssues() {
+    @GetMapping("/api/issues/{issueId}")
+    public CommonDto.Response getIssue(@PathVariable("issueId") Long issueId) {
+        IssueDto.IssueDetail issueDetail = issueService.findOne(issueId);
 
-        return issueService.findIssues();
+        return new CommonDto.Response(issueDetail, 200, "success");
+    }
+
+    @GetMapping("/api/remotes/{remoteId}/issues")
+    public CommonDto.Response getIssues(@PathVariable("remoteId") Long remoteId) {
+        List<IssueDto.Issue> issues = issueService.findIssues(remoteId);
+
+        return new CommonDto.Response(issues, 200, "success");
     }
 }

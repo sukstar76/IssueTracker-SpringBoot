@@ -4,46 +4,53 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sukstar76.IssueTracker.domain.Comment;
 import sukstar76.IssueTracker.domain.Issue;
+import sukstar76.IssueTracker.domain.Remote;
 import sukstar76.IssueTracker.dto.CommentDto;
 import sukstar76.IssueTracker.dto.IssueDto;
 import sukstar76.IssueTracker.repository.IssueRepository;
+import sukstar76.IssueTracker.repository.RemoteRepository;
 
 import javax.transaction.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
 @Service
 public class IssueService {
     private final IssueRepository issueRepository;
+    private final RemoteRepository remoteRepository;
 
     @Autowired
-    public IssueService(IssueRepository issueRepository) {
+    public IssueService(IssueRepository issueRepository, RemoteRepository remoteRepository) {
         this.issueRepository = issueRepository;
+        this.remoteRepository = remoteRepository;
     }
-    public IssueDto.IssueDetailResponse create(IssueDto.Request issueRequest) {
+
+    public IssueDto.IssueDetail create(Long remoteId, IssueDto.IssueCreationRequest req) {
         Issue newIssue = Issue.builder()
-                .title(issueRequest.getTitle())
-                .status(true)
+                .title(req.getTitle())
                 .build();
 
-        Issue createdIssue = issueRepository.save(newIssue);
+        Remote remote = remoteRepository.findById(remoteId).orElseThrow(NullPointerException::new);
+        Issue createdIssue = issueRepository.save(newIssue, remote).orElseThrow(NullPointerException::new);
 
         IssueDto.IssueDetail issue = IssueDto.IssueDetail.builder()
                 .id(createdIssue.getId())
                 .title(createdIssue.getTitle())
-                .status(createdIssue.getStatus())
                 .build();
 
-        IssueDto.IssueDetailResponse result = new IssueDto.IssueDetailResponse(issue,201,"success");
-
-        return result;
+        return issue;
     }
 
-    public IssueDto.IssueDetailResponse findOne(Long issueId) {
-        Issue foundIssue = issueRepository.findById(issueId);
-        List<Comment> comments = foundIssue.getComments();
+    public IssueDto.IssueDetail findOne(Long issueId) {
+        Issue foundIssue = issueRepository.findById(issueId).orElseThrow(NullPointerException::new);
+
+        List<Comment> comments = Optional.ofNullable(foundIssue.getComments()).orElse(Collections.emptyList());
+        comments = comments.isEmpty() ? Collections.emptyList() : comments;
+
         List<CommentDto.Comment> commentsDto = comments
                 .stream()
                 .map(c -> CommentDto.Comment.builder()
@@ -55,28 +62,22 @@ public class IssueService {
         IssueDto.IssueDetail issue = IssueDto.IssueDetail.builder()
                 .id(foundIssue.getId())
                 .title(foundIssue.getTitle())
-                .status(foundIssue.getStatus())
                 .comments(commentsDto)
                 .build();
 
-        IssueDto.IssueDetailResponse result = new IssueDto.IssueDetailResponse(issue,200,"success");
-
-        return result;
+        return issue;
     }
 
-    public IssueDto.IssuesResponse findIssues() {
-        List<Issue> foundIssues = issueRepository.findAll();
+    public List<IssueDto.Issue> findIssues(Long remoteId) {
+        List<Issue> foundIssues = issueRepository.findAll(remoteId);
 
-        List<IssueDto.Issue> issueList = foundIssues.stream()
+        List<IssueDto.Issue> issues = foundIssues.stream()
                 .map(i -> IssueDto.Issue.builder()
                         .id(i.getId())
                         .title(i.getTitle())
-                        .status(i.getStatus())
                         .build())
                 .collect(Collectors.toList());
 
-        IssueDto.IssuesResponse result = new IssueDto.IssuesResponse(issueList,200,"success");
-
-        return result;
+        return issues;
     }
 }

@@ -11,6 +11,7 @@ import sukstar76.IssueTracker.repository.IssueRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -27,31 +28,32 @@ public class CommentService {
     }
 
 
-    public Comment create(CommentDto.CreationRequest req) {
-        Issue foundIssue = issueRepository.findById(req.getIssueId());
+    public Comment create(CommentDto.CreationRequest req, Long issueId) {
+        Optional<Issue> optionalIssue = issueRepository.findById(issueId);
+        Issue foundIssue = optionalIssue.orElseThrow(NullPointerException::new);
 
         Comment comment = Comment.builder()
                 .content(req.getContent())
                 .status(true)
                 .build();
 
-        return commentRepository.save(comment,foundIssue);
+        return commentRepository.save(comment,foundIssue).orElseThrow(NullPointerException::new);
     }
 
-    public void delete(CommentDto.DeletionRequest req) {
-        commentRepository.updateStatusFalse(req.getCommentId());
+    public void delete(Long commentId) {
+        commentRepository.updateStatusFalse(commentId);
     }
 
     public List<CommentDto.Comment> getComments(Long issueId) {
-        Issue issue = issueRepository.findById(issueId);
+        List<Comment> comments = commentRepository.findAllByIssueId(issueId);
 
-        List<CommentDto.Comment> comments = issue.getComments()
+        List<CommentDto.Comment> commentsDto = comments
                 .stream()
                 .filter(c -> c.getStatus() != false)
                 .map(c -> new CommentDto.Comment(c.getId(), c.getContent()))
                 .collect(Collectors.toList());
 
-        return comments;
+        return commentsDto;
     }
 
 

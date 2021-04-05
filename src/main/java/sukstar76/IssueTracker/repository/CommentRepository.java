@@ -3,8 +3,12 @@ package sukstar76.IssueTracker.repository;
 import sukstar76.IssueTracker.domain.Comment;
 import sukstar76.IssueTracker.domain.Issue;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface CommentRepository {
-    Comment save(Comment comment, Issue foundIssue);
+    Optional<Comment> save(Comment comment, Issue foundIssue);
     void updateStatusFalse(Long commentId);
-    Comment findById(Long commentId);
+    Optional<Comment> findById(Long commentId);
+    List<Comment> findAllByIssueId(Long IssueId);
 }

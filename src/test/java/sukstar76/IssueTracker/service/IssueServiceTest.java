@@ -1,75 +1,75 @@
 package sukstar76.IssueTracker.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import sukstar76.IssueTracker.domain.Issue;
+import sukstar76.IssueTracker.domain.Remote;
 import sukstar76.IssueTracker.dto.IssueDto;
 import sukstar76.IssueTracker.repository.IssueRepository;
+import sukstar76.IssueTracker.repository.RemoteRepository;
 
-import javax.transaction.Transactional;
-
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
 class IssueServiceTest {
+    @Mock
+    private RemoteRepository remoteRepository;
+    @Mock
+    private IssueRepository issueRepository;
+    private Issue issue;
+    private Remote remote;
+    private List<Issue> issues;
 
-    @Autowired IssueService issueService;
-    @Autowired IssueRepository issueRepository;
+    @InjectMocks
+    private IssueService issueService;
 
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        issue = Issue.builder().build();
+        remote = Remote.builder().build();
+        issues = new ArrayList<>();
+    }
     @Test
-    void create() {
-        IssueDto.Request req = IssueDto.Request.builder()
-                .title("hello")
-                .status(true)
+    void 이슈생성() {
+        final IssueDto.IssueCreationRequest req = IssueDto.IssueCreationRequest.builder()
+                .title(issue.getTitle())
                 .build();
 
-        IssueDto.Response res = issueService.create(req);
+        given(remoteRepository.findById(any())).willReturn(Optional.ofNullable(remote));
+        given(issueRepository.save(any(),any())).willReturn(Optional.ofNullable(issue));
 
-        Assertions.assertThat(req.getTitle()).isEqualTo(res.getIssue().getTitle());
+        final IssueDto.IssueDetail i = issueService.create(any(), req);
+
+        assertEquals(i.getTitle(), issue.getTitle());
     }
 
     @Test
-    void findOne() {
-        IssueDto.Request req = IssueDto.Request.builder()
-                .title("hello")
-                .status(true)
-                .build();
+    void 이슈디테일테스트() {
+        given(issueRepository.findById(any())).willReturn(Optional.ofNullable(issue));
 
-        IssueDto.Response res = issueService.create(req);
+        final IssueDto.IssueDetail i = issueService.findOne(any());
 
-        IssueDto.Response finded = issueService.findOne(res.getIssue().getId());
-
-        Assertions.assertThat(req.getTitle()).isEqualTo(finded.getIssue().getTitle());
+        assertEquals(i.getTitle(), issue.getTitle());
+        assertEquals(i.getId(), issue.getId());
+        assertEquals(i.getComments(), Optional.ofNullable(issue.getComments()).orElse(Collections.emptyList()));
     }
 
     @Test
-    void findIssues() {
-        IssueDto.Request req1 = IssueDto.Request.builder()
-                .title("hello")
-                .status(true)
-                .build();
+    void 저장소안모든이슈들() {
+        given(issueRepository.findAll(any())).willReturn(issues);
 
-        IssueDto.Request req2 = IssueDto.Request.builder()
-                .title("hello2")
-                .status(true)
-                .build();
+        final List<IssueDto.Issue> is = issueService.findIssues(any());
 
-        issueService.create(req1);
-        issueService.create(req2);
-
-        IssueDto.IssuesResponse li = issueService.findIssues();
-
-        Assertions.assertThat(li.getIssues().size()).isEqualTo(2);
-
+        assertEquals(is.size(), issues.size());
     }
 }

@@ -19,31 +19,14 @@ public class IssueDto {
     public static class IssueDetail {
         private Long id;
         private String title;
-        private boolean status;
         private List<CommentDto.Comment> comments;
     }
 
     @AllArgsConstructor
+    @NoArgsConstructor
     @Getter
     @Builder
-    public static class Request {
+    public static class IssueCreationRequest {
         private String title;
-        private boolean status;
-    }
-
-    @AllArgsConstructor
-    @Getter
-    public static class IssueDetailResponse {
-        private IssueDetail issueDetail;
-        private int returnCode;
-        private String returnMessage;
-    }
-
-    @AllArgsConstructor
-    @Getter
-    public static class IssuesResponse {
-        private List<Issue> issues;
-        private int returnCode;
-        private String returnMessage;
     }
 }

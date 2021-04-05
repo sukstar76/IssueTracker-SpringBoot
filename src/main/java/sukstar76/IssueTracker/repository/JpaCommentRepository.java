@@ -7,6 +7,8 @@ import sukstar76.IssueTracker.domain.Comment;
 import sukstar76.IssueTracker.domain.Issue;
 
 import javax.persistence.EntityManager;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class JpaCommentRepository implements CommentRepository{
@@ -18,11 +20,11 @@ public class JpaCommentRepository implements CommentRepository{
     }
 
     @Override
-    public Comment save(Comment comment, Issue foundIssue) {
+    public Optional<Comment> save(Comment comment, Issue foundIssue) {
         em.persist(comment);
         comment.setIssue(foundIssue);
 
-        return comment;
+        return Optional.ofNullable(comment);
     }
 
     @Override
@@ -32,9 +34,18 @@ public class JpaCommentRepository implements CommentRepository{
     }
 
     @Override
-    public Comment findById(Long commentId) {
+    public Optional<Comment> findById(Long commentId) {
         Comment comment = em.find(Comment.class, commentId);
 
-        return comment;
+        return Optional.ofNullable(comment);
+    }
+
+    @Override
+    public List<Comment> findAllByIssueId(Long issueId) {
+        List<Comment> comments = em.createQuery("select c from Comment c where c.issue.id = :issueId", Comment.class)
+                .setParameter("issueId", issueId)
+                .getResultList();
+
+        return comments;
     }
 }
