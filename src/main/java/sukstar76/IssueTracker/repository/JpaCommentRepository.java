@@ -42,7 +42,7 @@ public class JpaCommentRepository implements CommentRepository{
 
     @Override
     public List<Comment> findAllByIssueId(Long issueId) {
-        List<Comment> comments = em.createQuery("select c from Comment c where c.issue.id = :issueId", Comment.class)
+        List<Comment> comments = em.createQuery("select c from Comment c where c.issue.id = :issueId and c.status = true", Comment.class)
                 .setParameter("issueId", issueId)
                 .getResultList();
 

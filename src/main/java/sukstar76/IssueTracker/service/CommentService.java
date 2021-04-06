@@ -28,7 +28,7 @@ public class CommentService {
     }
 
 
-    public Comment create(CommentDto.CreationRequest req, Long issueId) {
+    public CommentDto.Comment create(CommentDto.CreationRequest req, Long issueId) {
         Optional<Issue> optionalIssue = issueRepository.findById(issueId);
         Issue foundIssue = optionalIssue.orElseThrow(NullPointerException::new);
 
@@ -37,7 +37,12 @@ public class CommentService {
                 .status(true)
                 .build();
 
-        return commentRepository.save(comment,foundIssue).orElseThrow(NullPointerException::new);
+        Comment savedComment = commentRepository.save(comment,foundIssue).orElseThrow(NullPointerException::new);
+
+        return CommentDto.Comment.builder()
+                .id(savedComment.getId())
+                .content(savedComment.getContent())
+                .build();
     }
 
     public void delete(Long commentId) {
@@ -49,7 +54,6 @@ public class CommentService {
 
         List<CommentDto.Comment> commentsDto = comments
                 .stream()
-                .filter(c -> c.getStatus() != false)
                 .map(c -> new CommentDto.Comment(c.getId(), c.getContent()))
                 .collect(Collectors.toList());
 

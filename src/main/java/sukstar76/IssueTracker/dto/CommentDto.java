@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 public class CommentDto {
     @AllArgsConstructor
     @Getter
@@ -21,7 +19,6 @@ public class CommentDto {
     @Getter
     @Builder
     public static class CreationRequest {
-        private Long memberId;
         private String content;
     }
 }

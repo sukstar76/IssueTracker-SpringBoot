@@ -25,14 +25,18 @@ public class MemberService {
         this.remoteRepository = remoteRepository;
     }
 
-    public Member save(Long remoteId, MemberDto.MemberCreationRequest req) {
+    public MemberDto.Member save(Long remoteId, MemberDto.MemberCreationRequest req) {
         Member member = Member.builder()
                 .name(req.getName())
                 .build();
 
         Remote remote = remoteRepository.findById(remoteId).orElseThrow(NullPointerException::new);
+        Member savedMember = memberRepository.save(member, remote).orElseThrow(NullPointerException::new);
 
-        return memberRepository.save(member, remote).orElseThrow(NullPointerException::new);
+        return MemberDto.Member.builder()
+                .id(savedMember.getId())
+                .name(savedMember.getName())
+                .build();
     }
 
     public List<MemberDto.Member> findAllInRemote(Long remoteId) {
