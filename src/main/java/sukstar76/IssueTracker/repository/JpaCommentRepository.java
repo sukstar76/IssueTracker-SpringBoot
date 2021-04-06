@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import sukstar76.IssueTracker.domain.Comment;
 import sukstar76.IssueTracker.domain.Issue;
+import sukstar76.IssueTracker.domain.Member;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -20,9 +21,10 @@ public class JpaCommentRepository implements CommentRepository{
     }
 
     @Override
-    public Optional<Comment> save(Comment comment, Issue foundIssue) {
+    public Optional<Comment> save(Comment comment, Issue foundIssue, Member member) {
         em.persist(comment);
         comment.setIssue(foundIssue);
+        comment.setOwner(member);
 
         return Optional.ofNullable(comment);
     }

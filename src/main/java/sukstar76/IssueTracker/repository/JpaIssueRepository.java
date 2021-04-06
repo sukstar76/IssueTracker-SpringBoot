@@ -3,6 +3,7 @@ package sukstar76.IssueTracker.repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import sukstar76.IssueTracker.domain.Issue;
+import sukstar76.IssueTracker.domain.Member;
 import sukstar76.IssueTracker.domain.Remote;
 
 import javax.persistence.EntityManager;
@@ -19,9 +20,10 @@ public class JpaIssueRepository implements IssueRepository {
     }
 
     @Override
-    public Optional<Issue> save(Issue issue, Remote remote) {
+    public Optional<Issue> save(Issue issue, Remote remote, Member member) {
         em.persist(issue);
         issue.setRemote(remote);
+        issue.setOwner(member);
 
         return Optional.ofNullable(issue);
     }

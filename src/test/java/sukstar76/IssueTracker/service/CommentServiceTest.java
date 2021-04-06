@@ -7,9 +7,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import sukstar76.IssueTracker.domain.Comment;
 import sukstar76.IssueTracker.domain.Issue;
+import sukstar76.IssueTracker.domain.Member;
 import sukstar76.IssueTracker.dto.CommentDto;
 import sukstar76.IssueTracker.repository.CommentRepository;
 import sukstar76.IssueTracker.repository.IssueRepository;
+import sukstar76.IssueTracker.repository.MemberRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ class CommentServiceTest {
     IssueRepository issueRepository;
     @Mock
     CommentRepository commentRepository;
+    @Mock
+    MemberRepository memberRepository;
 
     @InjectMocks
     CommentService commentService;
@@ -31,6 +35,7 @@ class CommentServiceTest {
     private Issue issue;
     private Comment comment;
     private List<Comment> comments;
+    private Member member;
 
     @BeforeEach
     void setUp() {
@@ -38,20 +43,29 @@ class CommentServiceTest {
         issue = Issue.builder().build();
         comment = Comment.builder().build();
         comments = new ArrayList<>();
+        member = Member.builder().build();
     }
 
     @Test
     void 코멘트생성() {
         final CommentDto.CreationRequest req = CommentDto.CreationRequest.builder()
+                .issueId(issue.getId())
+                .memberId(member.getId())
                 .content("test")
                 .build();
 
+        comment = Comment.builder().status(true).owner(Member.builder().id((long)1).build()).build();
+
         given(issueRepository.findById(any())).willReturn(Optional.ofNullable(issue));
-        given(commentRepository.save(any(),any())).willReturn(Optional.ofNullable(comment));
+        given(memberRepository.findById(any())).willReturn(Optional.ofNullable(member));
+        given(commentRepository.save(any(),any(),any())).willReturn(Optional.ofNullable(comment));
 
-        final CommentDto.Comment c = commentService.create(req, any());
+        final CommentDto.Comment c = commentService.create(req);
 
+        assertEquals(c.getId(),comment.getId());
         assertEquals(c.getContent(),comment.getContent());
+        assertEquals(c.getOwner().getId(),comment.getOwner().getId());
+        assertEquals(true,comment.getStatus());
     }
 
     @Test

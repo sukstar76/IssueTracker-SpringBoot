@@ -17,9 +17,9 @@ public class IssueController {
         this.issueService = issueService;
     }
 
-    @PostMapping("/api/remotes/{remoteId}/issues")
-    public CommonDto.Response createIssue(@PathVariable("remoteId") Long remoteId, @RequestBody IssueDto.IssueCreationRequest req) {
-        IssueDto.IssueDetail issueDetail = issueService.create(remoteId, req);
+    @PostMapping("/api/issues")
+    public CommonDto.Response createIssue(@RequestBody IssueDto.IssueCreationRequest req) {
+        IssueDto.IssueDetail issueDetail = issueService.create(req);
 
         return new CommonDto.Response(issueDetail, 201, "success");
     }

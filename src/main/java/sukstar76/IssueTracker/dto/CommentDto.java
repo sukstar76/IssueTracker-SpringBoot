@@ -12,6 +12,7 @@ public class CommentDto {
     public static class Comment {
         private Long id;
         private String content;
+        private MemberDto.Member owner;
     }
 
     @AllArgsConstructor
@@ -19,6 +20,17 @@ public class CommentDto {
     @Getter
     @Builder
     public static class CreationRequest {
+        private Long issueId;
+        private Long memberId;
         private String content;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Builder
+    public static class DeletionRequest {
+        private Long issueId;
+        private Long commentId;
     }
 }

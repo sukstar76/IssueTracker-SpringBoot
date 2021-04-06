@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface MemberRepository {
     Optional<Member> save(Member member, Remote remote);
+    Optional<Member> findById(Long memberId);
     List<Member> findAllInRemote(Long remoteID);
 }

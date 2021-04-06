@@ -27,6 +27,12 @@ public class JpaMemberRepository implements MemberRepository {
     }
 
     @Override
+    public Optional<Member> findById(Long memberId) {
+
+        return Optional.ofNullable(em.find(Member.class, memberId));
+    }
+
+    @Override
     public List<Member> findAllInRemote(Long remoteId) {
 
         return em.createQuery("select m from Member m where m.remote.id = :remoteId ", Member.class)

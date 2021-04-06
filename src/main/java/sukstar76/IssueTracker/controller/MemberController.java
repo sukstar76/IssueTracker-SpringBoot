@@ -17,10 +17,10 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping(value = "/api/remotes/{remoteId}/members")
-    public CommonDto.Response createMember(@PathVariable("remoteId") Long remoteId, @RequestBody MemberDto.MemberCreationRequest req) {
-        memberService.save(remoteId, req);
-        List<MemberDto.Member> members = memberService.findAllInRemote(remoteId);
+    @PostMapping(value = "/api/members")
+    public CommonDto.Response createMember(@RequestBody MemberDto.MemberCreationRequest req) {
+        memberService.save(req);
+        List<MemberDto.Member> members = memberService.findAllInRemote(req.getRemoteId());
 
         return new CommonDto.Response(members, 201, "success");
     }

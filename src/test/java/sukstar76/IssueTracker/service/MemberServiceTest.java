@@ -44,12 +44,13 @@ class MemberServiceTest {
     void 멤버저장테스트() {
         final MemberDto.MemberCreationRequest req = MemberDto.MemberCreationRequest.builder()
                 .name(member.getName())
+                .remoteId(remote.getId())
                 .build();
 
         given(remoteRepository.findById(any())).willReturn(Optional.ofNullable(remote));
         given(memberRepository.save(any(),any())).willReturn(Optional.ofNullable(member));
 
-        MemberDto.Member m = memberService.save(any(), req);
+        MemberDto.Member m = memberService.save(req);
 
         assertEquals(m.getId(), member.getId());
         assertEquals(m.getName(), member.getName());

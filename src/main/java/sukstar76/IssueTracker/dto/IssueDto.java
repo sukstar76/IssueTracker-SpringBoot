@@ -1,5 +1,6 @@
 package sukstar76.IssueTracker.dto;
 import lombok.*;
+import sukstar76.IssueTracker.domain.Member;
 
 import java.util.List;
 
@@ -10,7 +11,8 @@ public class IssueDto {
     public static class Issue {
         private Long id;
         private String title;
-        private boolean status;
+        private MemberDto.Member owner;
+        private Boolean status;
     }
 
     @AllArgsConstructor
@@ -19,7 +21,9 @@ public class IssueDto {
     public static class IssueDetail {
         private Long id;
         private String title;
+        private MemberDto.Member owner;
         private List<CommentDto.Comment> comments;
+        private Boolean status;
     }
 
     @AllArgsConstructor
@@ -27,6 +31,8 @@ public class IssueDto {
     @Getter
     @Builder
     public static class IssueCreationRequest {
+        private Long remoteId;
+        private Long memberId;
         private String title;
     }
 }

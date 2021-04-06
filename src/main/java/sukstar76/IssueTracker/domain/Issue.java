@@ -31,7 +31,17 @@ public class Issue {
     @JoinColumn(name = "remote_id")
     private Remote remote;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private Member owner;
+
     public void setRemote(Remote remote) {
         this.remote = remote;
+    }
+    public void setOwner(Member owner) { this.owner = owner; }
+
+    @PrePersist
+    public void prePersist() {
+        this.status = this.status == null ? true : this.status;
     }
 }
