@@ -1,5 +1,6 @@
 package sukstar76.IssueTracker.service;
 
+import org.hibernate.mapping.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sukstar76.IssueTracker.domain.Comment;
@@ -16,6 +17,7 @@ import sukstar76.IssueTracker.repository.RemoteRepository;
 import javax.transaction.Transactional;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -104,5 +106,22 @@ public class IssueService {
                 .collect(Collectors.toList());
 
         return issues;
+    }
+
+    public List<IssueDto.Issue> findFilteringIssues(Long remoteId, IssueDto.FilteringRequest req) {
+        HashMap<String, Object> filters = new HashMap<>();
+        filters.put("ownerId", req.getOwnerId());
+        filters.put("isOpen", req.getIsOpen());
+
+        List<Issue> issues = issueRepository.findFilteringAll(remoteId, filters);
+
+        return issues.stream()
+                .map(i -> IssueDto.Issue.builder()
+                        .id(i.getId())
+                        .title(i.getTitle())
+                        .owner(MemberDto.Member.builder().id(i.getOwner().getId()).name(i.getOwner().getName()).build())
+                        .status(i.getStatus())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

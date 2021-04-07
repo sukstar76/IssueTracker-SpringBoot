@@ -12,6 +12,7 @@ import sukstar76.IssueTracker.domain.Remote;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,5 +70,19 @@ class IssueRepositoryTest {
         issueRepository.save(i2,remote,member);
         List<Issue> issues = issueRepository.findAll(i.getRemote().getId());
         assertEquals(issues.size(),2);
+    }
+
+    @Test
+    void 이슈리스트를필터링해서가져오기() {
+        Issue i = issueRepository.save(issue,remote,member).get();
+        Issue i2 = Issue.builder().title("test2").status(false).build();
+        issueRepository.save(i2,remote,member);
+
+        HashMap<String, Object> hm = new HashMap<>();
+        hm.put("isOpen", false);
+
+        List<Issue> issues = issueRepository.findFilteringAll(i.getRemote().getId(), hm);
+
+        assertEquals(issues.size(),1);
     }
 }

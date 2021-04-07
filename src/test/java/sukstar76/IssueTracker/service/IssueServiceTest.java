@@ -89,4 +89,19 @@ class IssueServiceTest {
 
         assertEquals(is.size(), issues.size());
     }
+
+    @Test
+    void 필터링된이슈들() {
+        IssueDto.FilteringRequest req = IssueDto.FilteringRequest.builder()
+                .isOpen(issue.getStatus())
+                .ownerId(member.getId())
+                .build();
+
+        given(issueRepository.findFilteringAll(any(),any())).willReturn(issues);
+
+        final List<IssueDto.Issue> is = issueService.findFilteringIssues(remote.getId(),req);
+
+        assertEquals(is.size(), issues.size());
+    }
+
 }

@@ -35,4 +35,13 @@ public class IssueDto {
         private Long memberId;
         private String title;
     }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Builder
+    public static class FilteringRequest {
+        private Long ownerId;
+        private Boolean isOpen;
+    }
 }
