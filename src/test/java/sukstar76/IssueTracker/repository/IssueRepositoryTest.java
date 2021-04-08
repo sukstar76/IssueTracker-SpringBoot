@@ -75,6 +75,7 @@ class IssueRepositoryTest {
     @Test
     void 이슈리스트를필터링해서가져오기() {
         Issue i = issueRepository.save(issue,remote,member).get();
+        issueRepository.save(issue,remote,member).get();
         Issue i2 = Issue.builder().title("test2").status(false).build();
         issueRepository.save(i2,remote,member);
 
