@@ -39,6 +39,7 @@ public class IssueDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
+    @Setter
     @Builder
     public static class FilteringRequest {
         private Long ownerId;

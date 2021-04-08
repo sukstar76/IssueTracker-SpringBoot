@@ -41,7 +41,7 @@ public class IssueController {
     @GetMapping("/api/v2/remotes/{remoteId}/issues")
     public CommonDto.Response getIssuesFiltering(
             @PathVariable("remoteId") Long remoteId,
-            @ModelAttribute("filtering") IssueDto.FilteringRequest req
+            @ModelAttribute IssueDto.FilteringRequest req
     ) {
         List<IssueDto.Issue> issues = issueService.findFilteringIssues(remoteId, req);
 
