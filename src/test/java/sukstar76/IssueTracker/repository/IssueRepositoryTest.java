@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import sukstar76.IssueTracker.domain.Comment;
 import sukstar76.IssueTracker.domain.Issue;
 import sukstar76.IssueTracker.domain.Member;
 import sukstar76.IssueTracker.domain.Remote;
 
+import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
@@ -27,6 +29,8 @@ class IssueRepositoryTest {
     private JpaRemoteRepository remoteRepository;
     @Autowired
     private JpaMemberRepository memberRepository;
+    @Autowired
+    EntityManager em;
 
     private Issue issue;
     private Remote remote;
@@ -54,7 +58,11 @@ class IssueRepositoryTest {
     @Test
     void 하나의이슈찾기() {
         Issue i = issueRepository.save(issue,remote,member).get();
+        em.flush();
+        em.clear();
+
         Issue f = issueRepository.findById(i.getId()).get();
+
 
         assertEquals(f.getId(),i.getId());
         assertEquals(f.getTitle(),i.getTitle());
@@ -70,6 +78,7 @@ class IssueRepositoryTest {
         issueRepository.save(i2,remote,member);
         List<Issue> issues = issueRepository.findAll(i.getRemote().getId());
         assertEquals(issues.size(),2);
+
     }
 
     @Test

@@ -10,16 +10,14 @@ import sukstar76.IssueTracker.domain.Remote;
 import sukstar76.IssueTracker.dto.CommentDto;
 import sukstar76.IssueTracker.dto.IssueDto;
 import sukstar76.IssueTracker.dto.MemberDto;
+import sukstar76.IssueTracker.repository.CommentRepository;
 import sukstar76.IssueTracker.repository.IssueRepository;
 import sukstar76.IssueTracker.repository.MemberRepository;
 import sukstar76.IssueTracker.repository.RemoteRepository;
 
 import javax.transaction.Transactional;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -28,12 +26,14 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final RemoteRepository remoteRepository;
     private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
-    public IssueService(IssueRepository issueRepository, RemoteRepository remoteRepository, MemberRepository memberRepository) {
+    public IssueService(IssueRepository issueRepository, RemoteRepository remoteRepository, MemberRepository memberRepository, CommentRepository commentRepository) {
         this.issueRepository = issueRepository;
         this.remoteRepository = remoteRepository;
         this.memberRepository = memberRepository;
+        this.commentRepository = commentRepository;
     }
 
     public IssueDto.IssueDetail create(IssueDto.IssueCreationRequest req) {
@@ -104,6 +104,35 @@ public class IssueService {
                         .status(i.getStatus())
                         .build())
                 .collect(Collectors.toList());
+
+        return issues;
+    }
+
+    public List<IssueDto.IssueDetail> findIssuesV2(Long remoteId) {
+        List<Issue> foundIssues = issueRepository.findAll(remoteId);
+
+        /*List<IssueDto.IssueDetail> issues = foundIssues.stream()
+                .map(i -> IssueDto.IssueDetail.builder()
+                        .id(i.getId())
+                        .title(i.getTitle())
+                        .owner(MemberDto.Member.builder().id(i.getOwner().getId()).name(i.getOwner().getName()).build())
+                        .comments(i.getComments().stream().map(c->CommentDto.Comment.builder().id(c.getId()).content(c.getContent()).owner(MemberDto.Member.builder().id(c.getOwner().getId()).name(c.getOwner().getName()).build()).build()).collect(Collectors.toList()))
+                        .status(i.getStatus())
+                        .build())
+                .collect(Collectors.toList()); // issue 1 -> comment n -> comment 의 Owner 1;*/
+
+        List<Long> issueIds = foundIssues.stream().map(i -> i.getId()).collect(Collectors.toList());;
+        Map<Long, List<Comment>> commentsMap = commentRepository.findAllByIssueIds(issueIds);
+        List<IssueDto.IssueDetail> issues = foundIssues.stream()
+                .map(i -> IssueDto.IssueDetail.builder()
+                        .id(i.getId())
+                        .title(i.getTitle())
+                        .owner(MemberDto.Member.builder().id(i.getOwner().getId()).name(i.getOwner().getName()).build())
+                        .comments(commentsMap.get(i.getId()).stream().map(c->CommentDto.Comment.builder().id(c.getId()).content(c.getContent()).owner(MemberDto.Member.builder().id(c.getOwner().getId()).name(c.getOwner().getName()).build()).build()).collect(Collectors.toList()))
+                        .status(i.getStatus())
+                        .build())
+                .collect(Collectors.toList()); // issue 1 -> comment 1 과 comment owner 도 같이
+
 
         return issues;
     }

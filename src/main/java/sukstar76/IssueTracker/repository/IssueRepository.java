@@ -13,4 +13,5 @@ public interface IssueRepository {
     Optional<Issue> findById(Long id);
     List<Issue> findAll(Long remoteId);
     List<Issue> findFilteringAll(Long remoteId, HashMap filters);
+
 }

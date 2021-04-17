@@ -1,9 +1,7 @@
 package sukstar76.IssueTracker.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sukstar76.IssueTracker.dto.CommonDto;
 import sukstar76.IssueTracker.dto.RemoteDto;
 import sukstar76.IssueTracker.service.RemoteService;
@@ -23,5 +21,19 @@ public class RemoteController {
         RemoteDto.Remote remote = remoteService.create(req);
 
         return new CommonDto.Response(remote, 201, "success");
+    }
+
+    @GetMapping("/api/remotes/{remoteId}")
+    public CommonDto.Response getRemote(@PathVariable("remoteId") Long remoteId) {
+        RemoteDto.Remote remote = remoteService.getRemote(remoteId);
+
+        return new CommonDto.Response(remote, 200, "success");
+    }
+
+    @GetMapping("/api/v2/remotes/{remoteId}")
+    public CommonDto.Response getRemoteV2(@PathVariable("remoteId") Long remoteId) {
+        RemoteDto.Remote remote = remoteService.getRemoteV2(remoteId);
+
+        return new CommonDto.Response(remote, 200, "success");
     }
 }

@@ -38,6 +38,13 @@ public class IssueController {
         return new CommonDto.Response(issues, 200, "success");
     }
 
+    @GetMapping("/api/v3/remotes/{remoteId}/issues")
+    public CommonDto.Response getIssuesV2(@PathVariable("remoteId") Long remoteId) {
+        List<IssueDto.IssueDetail> issues = issueService.findIssuesV2(remoteId);
+
+        return new CommonDto.Response(issues, 200, "success");
+    }
+
     @GetMapping("/api/v2/remotes/{remoteId}/issues")
     public CommonDto.Response getIssuesFiltering(
             @PathVariable("remoteId") Long remoteId,

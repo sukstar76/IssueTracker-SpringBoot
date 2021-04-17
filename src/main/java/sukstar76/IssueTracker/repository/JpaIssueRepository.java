@@ -32,7 +32,13 @@ public class JpaIssueRepository implements IssueRepository {
 
     @Override
     public Optional<Issue> findById(Long id) {
-        Issue issue = em.find(Issue.class, id);
+        Issue issue = em.createQuery(
+                "select i from Issue i" +
+                        " join fetch i.owner" +
+                        " join fetch i.remote" +
+                        " where i.id = :id", Issue.class)
+                .setParameter("id", id)
+                .getSingleResult();
 
         return Optional.ofNullable(issue);
     }
@@ -40,7 +46,7 @@ public class JpaIssueRepository implements IssueRepository {
     @Override
     public List<Issue> findAll(Long remoteId) {
 
-        return em.createQuery("select i from Issue i where i.remote.id = :remoteId", Issue.class)
+        return em.createQuery("select i from Issue i join fetch i.owner where i.remote.id = :remoteId", Issue.class)
                 .setParameter("remoteId", remoteId)
                 .getResultList();
     }

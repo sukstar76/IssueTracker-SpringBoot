@@ -9,7 +9,9 @@ import sukstar76.IssueTracker.domain.Member;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class JpaCommentRepository implements CommentRepository{
@@ -49,5 +51,17 @@ public class JpaCommentRepository implements CommentRepository{
                 .getResultList();
 
         return comments;
+    }
+
+    @Override
+    public Map<Long, List<Comment>> findAllByIssueIds(List<Long> issueIds) {
+        List<Comment> comments = em.createQuery(
+                "select c from Comment c" +
+                        " join fetch  c.owner" +
+                        " where c.issue.id in :issueIds" , Comment.class)
+                .setParameter("issueIds", issueIds)
+                .getResultList();
+
+        return comments.stream().collect(Collectors.groupingBy(Comment::getId));
     }
 }

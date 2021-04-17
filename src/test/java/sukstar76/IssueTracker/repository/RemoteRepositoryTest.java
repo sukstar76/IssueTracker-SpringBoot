@@ -39,4 +39,12 @@ class RemoteRepositoryTest {
 
         assertEquals(f.getName(), remote.getName());
     }
+
+    @Test
+    void 저장소겟v2() {
+        Remote r = remoteRepository.save(remote).get();
+        Remote f = remoteRepository.findByIdV2(r.getId()).get();
+
+        assertEquals(f.getName(), remote.getName());
+    }
 }

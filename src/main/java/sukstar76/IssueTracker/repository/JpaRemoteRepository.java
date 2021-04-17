@@ -30,5 +30,18 @@ public class JpaRemoteRepository implements RemoteRepository{
         return Optional.ofNullable(remote);
     }
 
+    @Override
+    public Optional<Remote> findByIdV2(Long id) {
+        Remote remote = em.createQuery(
+                "select r from Remote r" +
+                        " left join r.members m" +
+                        " left join r.issues i" +
+                        " where r.id= :remoteId", Remote.class)
+                .setParameter("remoteId", id)
+                .getSingleResult();
+
+        return Optional.ofNullable(remote);
+    }
+
 
 }

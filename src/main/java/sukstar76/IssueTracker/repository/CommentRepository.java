@@ -5,6 +5,7 @@ import sukstar76.IssueTracker.domain.Issue;
 import sukstar76.IssueTracker.domain.Member;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface CommentRepository {
@@ -12,4 +13,5 @@ public interface CommentRepository {
     void updateStatusFalse(Long commentId);
     Optional<Comment> findById(Long commentId);
     List<Comment> findAllByIssueId(Long IssueId);
+    Map<Long, List<Comment>> findAllByIssueIds(List<Long> issueIds);
 }
