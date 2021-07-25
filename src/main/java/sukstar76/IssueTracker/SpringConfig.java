@@ -2,9 +2,9 @@
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sukstar76.IssueTracker.repository.IssueRepository;
-import sukstar76.IssueTracker.repository.JpaIssueRepository;
-import sukstar76.IssueTracker.service.IssueService;
+import sukstar76.IssueTracker.issue.IssueRepository;
+import sukstar76.IssueTracker.issue.JpaIssueRepository;
+import sukstar76.IssueTracker.issue.IssueService;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
