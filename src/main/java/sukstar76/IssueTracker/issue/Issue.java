@@ -29,6 +29,10 @@ public class Issue {
     @Column(nullable = false, updatable = false)
     private Long issueNo;
 
+    @Version
+    @Builder.Default
+    private long version = 0L;
+
     @NotBlank
     @Size(max = 200)
     @Column(nullable = false, length = 200)
@@ -62,4 +66,19 @@ public class Issue {
     @Builder.Default
     @Column(nullable = false)
     private Instant updatedAt = Instant.now();
+
+    void changeStatus(Status status) {
+        this.status = status;
+        this.updatedAt = Instant.now();
+    }
+
+    void changeTitle(String title) {
+        this.title = title;
+        this.updatedAt = Instant.now();
+    }
+
+    void changeIssueContent(IssueContent issueContent) {
+        this.content = issueContent;
+        this.updatedAt = Instant.now();
+    }
 }

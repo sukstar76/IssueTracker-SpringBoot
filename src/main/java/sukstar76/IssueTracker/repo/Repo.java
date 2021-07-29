@@ -39,7 +39,7 @@ public class Repo {
 
     @NotNull
     @PastOrPresent
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Instant updatedAt = Instant.now();
 
@@ -52,8 +52,19 @@ public class Repo {
     @Builder.Default
     private Long issueNo = 0L;
 
+    public void changeName(String name) {
+        this.name = name;
+        this.updatedAt = Instant.now();
+    }
+
+    public void changeDescription(String description) {
+        this.description = description;
+        this.updatedAt = Instant.now();
+    }
+
     public void increaseIssueNo() {
         this.issueNo = issueNo + 1;
+        this.updatedAt = Instant.now();
     }
 
 }

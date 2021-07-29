@@ -85,16 +85,40 @@ class RepoRepositoryTest {
         Assertions.assertThat(actual.get().getIssueNo()).isEqualTo(2L);
     }
 
-    private CompletableFuture<Void> asyncIncrease(UUID id, TransactionTemplate transactionTemplate) {
-        return CompletableFuture.runAsync(() -> {
-            transactionTemplate.execute(status -> {
-                Repo lock = repoRepository.findById(id).get();
-                lock.increaseIssueNo();
-                repoRepository.save(lock);
+    @Test
+    void changeMultiProperty(@Autowired TransactionTemplate transactionTemplate) {
+        //given
+        Repo repo = repoRepository.save(repos.get(0));
 
-                return null;
-            });
+        //when
+        CompletableFuture<Void> future = transactionTemplate.execute(status -> {
+            Repo lock = repoRepository.findById(repo.getId()).get();
+            CompletableFuture<Void> futureIncrease = asyncIncrease(lock.getId(), transactionTemplate);
+
+            sleep(1000);
+            lock.changeDescription("description change");
+            lock.changeName("name change");
+            repoRepository.save(lock);
+
+            return futureIncrease;
         });
+
+        future.join();
+        Optional<Repo> actual = repoRepository.findById(repo.getId());
+
+        //then
+        Assertions.assertThat(actual.get().getName()).isEqualTo("name change");
+        Assertions.assertThat(actual.get().getDescription()).isEqualTo("description change");
+    }
+
+    private CompletableFuture<Void> asyncIncrease(UUID id, TransactionTemplate transactionTemplate) {
+        return CompletableFuture.runAsync(() -> transactionTemplate.execute(status -> {
+            Repo lock = repoRepository.findById(id).get();
+            lock.increaseIssueNo();
+            repoRepository.save(lock);
+
+            return null;
+        }));
     }
 
     private void sleep(long ms) {

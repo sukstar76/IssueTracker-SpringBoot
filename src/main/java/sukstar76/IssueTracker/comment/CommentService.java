@@ -1,74 +1,59 @@
-//package sukstar76.IssueTracker.comment;
-//
-//import org.springframework.stereotype.Service;
-//import sukstar76.IssueTracker.issue.Issue;
-//import sukstar76.IssueTracker.issue.IssueRepository;
-//import sukstar76.IssueTracker.user.User;
-//import sukstar76.IssueTracker.user.UserDto;
-//import sukstar76.IssueTracker.user.UserRepository;
-//
-//import javax.transaction.Transactional;
-//import java.util.List;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
-//
-//@Transactional
-//@Service
-//public class CommentService {
-//
-//    private final IssueRepository issueRepository;
-//    private final CommentRepository commentRepository;
-//    private final UserRepository userRepository;
-//
-//    public CommentService(IssueRepository issueRepository, CommentRepository commentRepository, UserRepository userRepository) {
-//        this.issueRepository = issueRepository;
-//        this.commentRepository = commentRepository;
-//        this.userRepository = userRepository;
-//    }
-//
-//
-//    public CommentDto.Comment create(CommentDto.CreationRequest req) {
-//        Optional<Issue> optionalIssue = issueRepository.findById(req.getIssueId());
-//        Issue foundIssue = optionalIssue.orElseThrow(NullPointerException::new);
-//        User user = userRepository.findById(req.getMemberId()).orElseThrow(NullPointerException::new);
-//
-//        Comment comment = Comment.builder()
-//                .content(req.getContent())
-//                .build();
-//
-//        Comment savedComment = commentRepository.save(comment, foundIssue, user).orElseThrow(NullPointerException::new);
-//
-//        User owner = savedComment.getOwner();
-//        UserDto.Member ownerDto = UserDto.Member.builder()
-//                .id(owner.getId())
-//                .name(owner.getName())
-//                .build();
-//
-//        return CommentDto.Comment.builder()
-//                .id(savedComment.getId())
-//                .content(savedComment.getContent())
-//                .owner(ownerDto)
-//                .build();
-//    }
-//
-//    public void delete(Long commentId) {
-//        commentRepository.updateStatusFalse(commentId);
-//    }
-//
-//    public List<CommentDto.Comment> getComments(Long issueId) {
-//        List<Comment> comments = commentRepository.findAllByIssueId(issueId);
-//
-//        List<CommentDto.Comment> commentsDto = comments
-//                .stream()
-//                .map(c -> CommentDto.Comment.builder()
-//                        .id(c.getId())
-//                        .content(c.getContent())
-//                        .owner(UserDto.Member.builder().id(c.getOwner().getId()).name(c.getOwner().getName()).build())
-//                        .build())
-//                .collect(Collectors.toList());
-//
-//        return commentsDto;
-//    }
-//
-//
-//}
+package sukstar76.IssueTracker.comment;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sukstar76.IssueTracker.user.User;
+import sukstar76.IssueTracker.user.UserRepository;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Service
+public class CommentService {
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
+
+    public CommentService(CommentRepository commentRepository, UserRepository userRepository) {
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public CommentResult createComment(CommentRequest.Creation creationRequest, User me) {
+        Comment comment = Comment.builder()
+                .issueId(UUID.fromString(creationRequest.getIssueId()))
+                .createdBy(me.getId())
+                .content(new CommentContent(creationRequest.getBody()))
+                .build();
+
+        comment = commentRepository.save(comment);
+
+        return new CommentResult(
+                new CommentDto.Comment(comment.getId(), comment.getCreatedAt(), comment.getUpdatedAt()),
+                new CommentDto.Content(comment.getContent().getBody()),
+                new CommentDto.Creator(me.getId(), me.getName())
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResult> getCommentsByIssueId(UUID issueId) {
+        List<Comment> comments = commentRepository.findAllByIssueIdOrderByCreatedAtAsc(issueId);
+        List<UUID> creatorIds = comments.stream().map(comment -> comment.getCreatedBy()).distinct().collect(Collectors.toList());
+        Map<UUID, User> creators = userRepository.findAllByIdIn(creatorIds).stream().collect(Collectors.toMap(User::getId, Function.identity()));
+
+        return comments.stream().map(
+                comment -> {
+                    User creator = creators.get(comment.getCreatedBy());
+
+                    return new CommentResult(
+                            new CommentDto.Comment(comment.getId(), comment.getCreatedAt(), comment.getUpdatedAt()),
+                            new CommentDto.Content(comment.getContent().getBody()),
+                            new CommentDto.Creator(creator.getId(), creator.getName())
+                    );
+                }
+        ).collect(Collectors.toList());
+    }
+}

@@ -1,20 +1,10 @@
 package sukstar76.IssueTracker.comment;
 
-import sukstar76.IssueTracker.issue.Issue;
-import sukstar76.IssueTracker.user.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.UUID;
 
-public interface CommentRepository {
-    Optional<Comment> save(Comment comment, Issue foundIssue, User user);
-
-    void updateStatusFalse(Long commentId);
-
-    Optional<Comment> findById(Long commentId);
-
-    List<Comment> findAllByIssueId(Long IssueId);
-
-    Map<Long, List<Comment>> findAllByIssueIds(List<Long> issueIds);
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+    List<Comment> findAllByIssueIdOrderByCreatedAtAsc(UUID issueId);
 }

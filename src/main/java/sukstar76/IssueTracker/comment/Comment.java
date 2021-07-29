@@ -21,6 +21,9 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private long version;
+
     @NotNull
     @Column(nullable = false, length = 36)
     private UUID issueId;
@@ -44,4 +47,9 @@ public class Comment {
     @Builder.Default
     @Column(nullable = false)
     private Instant updatedAt = Instant.now();
+
+    public void changeCommentContent(CommentContent commentContent) {
+        this.content = commentContent;
+        this.updatedAt = Instant.now();
+    }
 }

@@ -1,37 +1,39 @@
-//package sukstar76.IssueTracker.comment;
-//
-//import org.springframework.http.HttpStatus;
-//import org.springframework.web.bind.annotation.DeleteMapping;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import java.util.List;
-//
-//import static sukstar76.IssueTracker.util.ApiUtil.ApiResult;
-//import static sukstar76.IssueTracker.util.ApiUtil.success;
-//
-//@RestController
-//public class CommentController {
-//    private final CommentService commentService;
-//
-//    public CommentController(CommentService commentService) {
-//        this.commentService = commentService;
-//    }
-//
-//    @PostMapping(value = "/api/comments")
-//    public ApiResult<List<CommentDto.Comment>> createComment(@RequestBody CommentDto.CreationRequest req) {
-//        commentService.create(req);
-//        List<CommentDto.Comment> comments = commentService.getComments(req.getIssueId());
-//
-//        return success(comments, "success", HttpStatus.CREATED);
-//    }
-//
-//    @DeleteMapping(value = "/api/comments")
-//    public ApiResult<List<CommentDto.Comment>> deleteComment(@RequestBody CommentDto.DeletionRequest req) {
-//        commentService.delete(req.getCommentId());
-//        List<CommentDto.Comment> comments = commentService.getComments(req.getIssueId());
-//
-//        return success(comments, "success", HttpStatus.CREATED);
-//    }
-//}
+package sukstar76.IssueTracker.comment;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import sukstar76.IssueTracker.user.User;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.UUID;
+
+import static sukstar76.IssueTracker.util.ApiUtil.ApiResult;
+import static sukstar76.IssueTracker.util.ApiUtil.success;
+
+@RestController
+@RequestMapping("/comments")
+public class CommentController {
+    private final CommentService commentService;
+
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
+
+    @PostMapping
+    public ApiResult<CommentResult> createComment(
+            @Valid @RequestBody CommentRequest.Creation creationRequest,
+            @AuthenticationPrincipal Authentication authentication
+    ) {
+
+        return success(commentService.createComment(creationRequest, (User) authentication.getPrincipal()), "success", HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ApiResult<List<CommentResult>> getCommentsByIssueId(@RequestParam("issueId") String issueId) {
+
+        return success(commentService.getCommentsByIssueId(UUID.fromString(issueId)), "success", HttpStatus.OK);
+    }
+}

@@ -10,9 +10,10 @@ import sukstar76.IssueTracker.repo.RepoRepository;
 import sukstar76.IssueTracker.user.User;
 import sukstar76.IssueTracker.user.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,19 +58,18 @@ public class IssueService {
     public List<IssueResult> getIssuesByRepoIdAndStatus(UUID repoId, Status status, Pageable pageable) {
         Page<Issue> issues = issueRepository.findByRepoIdAndAndStatus(repoId, status, pageable);
 
-        List<UUID> createdByList = issues.map(issue -> issue.getCreatedBy()).toList();
-        List<User> creatorList = userRepository.findAllByIdIn(createdByList);
+        List<UUID> creatorIds = issues.map(issue -> issue.getCreatedBy()).toList().stream().distinct().collect(Collectors.toList());
+        Map<UUID, User> creators = userRepository.findAllByIdIn(creatorIds).stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
-        List<IssueDto.Issue> issueDtoList = issues.map(issue -> IssueDto.Issue.toDto(issue)).toList();
-        List<IssueDto.Creator> creatorDtoList = creatorList.stream().map(creator -> new IssueDto.Creator(creator.getId().toString(), creator.getName())).collect(Collectors.toList());
-
-        List<IssueResult> issueResults = new ArrayList<>();
-
-        for (int i = 0; i < issueDtoList.size(); i++) {
-            issueResults.add(new IssueResult(issueDtoList.get(i), null, creatorDtoList.get(i)));
-        }
-
-        return issueResults;
+        return issues.stream().map(issue -> {
+                    User creator = creators.get(issue.getCreatedBy());
+                    return new IssueResult(
+                            IssueDto.Issue.toDto(issue),
+                            new IssueDto.IssueContent(issue.getContent().getBody()),
+                            new IssueDto.Creator(creator.getId().toString(), creator.getName())
+                    );
+                }
+        ).collect(Collectors.toList());
     }
 
 //    public IssueDto.IssueDetail findOne(Long issueId) {
